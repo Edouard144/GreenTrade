@@ -11,8 +11,12 @@ import reviewRoutes from "./modules/reviews/review.routes.js";
 import notificationRoutes from "./modules/notifications/notification.routes.js";
 import adminRoutes from "./modules/admin/admin.routes.js";
 import userRoutes from "./modules/users/user.routes.js";
+import { fileURLToPath } from "url";
+import path from "path";
 
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = path.dirname(__filename);
 
 app.use(helmet());
 app.use(cors());
@@ -30,6 +34,7 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/users", userRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 app.get("/", (req, res) => {
   res.json({ message: "GreenTrade API is running 🌱" });

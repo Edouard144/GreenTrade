@@ -3,6 +3,7 @@ import { protect } from "../../middlewares/auth.middleware.js";
 import { authorize } from "../../middlewares/role.middleware.js";
 import { productValidation } from "./product.validation.js";
 import { create, getAll, getOne, getMine, update, remove } from "./product.controller.js";
+import upload from "../../middlewares/upload.middleware.js";
 
 const router = Router();
 
@@ -104,7 +105,14 @@ router.get("/:id", getOne);
  *       403:
  *         description: Access denied
  */
-router.post("/", protect, authorize("farmer"), productValidation, create);
+router.post(
+     "/",
+     protect, 
+     authorize("farmer"), 
+     upload.single("image"),
+     productValidation, 
+     create
+    );
 
 /**
  * @swagger
@@ -139,7 +147,12 @@ router.post("/", protect, authorize("farmer"), productValidation, create);
  *       404:
  *         description: Product not found or not yours
  */
-router.put("/:id", protect, authorize("farmer"), update);
+router.put("/:id",
+     protect, 
+     authorize("farmer"),
+     upload.single("image"), 
+     update
+    );
 
 /**
  * @swagger

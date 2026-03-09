@@ -15,7 +15,12 @@ export const create = async (req, res) => {
   if (!errors.isEmpty()) return errorResponse(res, errors.array()[0].msg, 422);
 
   try {
-    const product = await createProduct(req.user.id, req.body);
+    // If image was uploaded, build its public URL
+    const imageUrl = req.file
+      ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
+      : null;
+
+    const product = await createProduct(req.user.id, { ...req.body, imageUrl });
     return successResponse(res, "Product created", product, 201);
   } catch (err) {
     return errorResponse(res, err.message);
@@ -55,7 +60,16 @@ export const getMine = async (req, res) => {
 // PUT /api/products/:id
 export const update = async (req, res) => {
   try {
-    const product = await updateProduct(req.params.id, req.user.id, req.body);
+    const imageUrl = req.file
+      ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
+      : undefined; // undefined means don't overwrite existing image
+
+    // Whitelist allowed fields to prevent mass assignment
+    const { name, category, description, price, quantity, unit, location } = req.body;
+    const data = { name, category, description, price, quantity, unit, location };
+    if (imageUrl !== undefined) data.imageUrl = imageUrl;
+
+    const product = await updateProduct(req.params.id, req.user.id, data);
     return successResponse(res, "Product updated", product);
   } catch (err) {
     return errorResponse(res, err.message, 404);
