@@ -10,6 +10,7 @@ import messageRoutes from "./modules/messages/message.routes.js";
 import reviewRoutes from "./modules/reviews/review.routes.js";
 import notificationRoutes from "./modules/notifications/notification.routes.js";
 import adminRoutes from "./modules/admin/admin.routes.js";
+import userRoutes from "./modules/users/user.routes.js";
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use("/api/messages", messageRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/users", userRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "GreenTrade API is running 🌱" });
