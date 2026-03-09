@@ -2,10 +2,10 @@ import db from "../../config/db.js";
 import { orders } from "./order.model.js";
 import { products } from "../products/product.model.js";
 import { eq, and } from "drizzle-orm";
+import { createNotification } from "../notifications/notification.service.js";
 
 // Buyer places an order
 export const placeOrder = async (buyerId, { productId, quantity, note }) => {
-
   // 1. Get the product to calculate total price and get farmerId
   const [product] = await db.select().from(products)
     .where(eq(products.id, productId));
@@ -19,12 +19,19 @@ export const placeOrder = async (buyerId, { productId, quantity, note }) => {
   // 3. Create the order
   const [order] = await db.insert(orders).values({
     buyerId,
-    farmerId:  product.farmerId,
+    farmerId: product.farmerId,
     productId,
     quantity,
     totalPrice,
     note: note || null,
   }).returning();
+
+  // 4. Notify the farmer
+  await createNotification(
+    product.farmerId,
+    "new_order",
+    `You have a new order for ${product.name} — ${quantity} ${product.unit}`
+  );
 
   return order;
 };
@@ -61,6 +68,14 @@ export const updateOrderStatus = async (id, farmerId, status) => {
     .returning();
 
   if (!updated) throw new Error("Order not found or not yours");
+
+  // Notify the buyer
+  await createNotification(
+    updated.buyerId,
+    "order_update",
+    `Your order status has been updated to: ${status}`
+  );
+
   return updated;
 };
 
