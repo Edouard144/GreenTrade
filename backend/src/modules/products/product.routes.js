@@ -11,9 +11,40 @@ const router = Router();
  * @swagger
  * /api/products:
  *   get:
- *     summary: Get all available products
+ *     summary: Get all available products with search and filters
  *     tags: [Products]
  *     security: []
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         example: tomatoes
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *         example: vegetables
+ *       - in: query
+ *         name: minPrice
+ *         schema:
+ *           type: number
+ *         example: 100
+ *       - in: query
+ *         name: maxPrice
+ *         schema:
+ *           type: number
+ *         example: 1000
+ *       - in: query
+ *         name: location
+ *         schema:
+ *           type: string
+ *         example: Musanze
+ *       - in: query
+ *         name: unit
+ *         schema:
+ *           type: string
+ *         example: kg
  *     responses:
  *       200:
  *         description: Products fetched

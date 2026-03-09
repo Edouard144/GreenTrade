@@ -1,6 +1,6 @@
 import db from "../../config/db.js";
 import { products } from "./product.model.js";
-import { eq, and } from "drizzle-orm";
+import { eq, and, ilike, gte, lte, or  } from "drizzle-orm";
 
 // Create a new product
 export const createProduct = async (farmerId, data) => {
@@ -20,9 +20,54 @@ export const createProduct = async (farmerId, data) => {
 };
 
 // Get all available products (marketplace)
-export const getAllProducts = async () => {
-  return await db.select().from(products)
-    .where(eq(products.status, "available"));
+export const getAllProducts = async (query) => {
+  const {
+    search,    // search by name or description
+    category,  // filter by category
+    minPrice,  // filter by min price
+    maxPrice,  // filter by max price
+    location,  // filter by location
+    unit,      // filter by unit
+  } = query;
+
+  // Build conditions array dynamically
+  const conditions = [eq(products.status, "available")];
+
+  // Search by name or description
+  if (search) {
+    conditions.push(
+      or(
+        ilike(products.name, `%${search}%`),        // case-insensitive name match
+        ilike(products.description, `%${search}%`)  // case-insensitive description match
+      )
+    );
+  }
+
+  // Filter by category
+  if (category) {
+    conditions.push(ilike(products.category, `%${category}%`));
+  }
+
+  // Filter by location
+  if (location) {
+    conditions.push(ilike(products.location, `%${location}%`));
+  }
+
+  // Filter by unit
+  if (unit) {
+    conditions.push(eq(products.unit, unit));
+  }
+
+  // Filter by price range
+  if (minPrice) {
+    conditions.push(gte(products.price, minPrice));
+  }
+
+  if (maxPrice) {
+    conditions.push(lte(products.price, maxPrice));
+  }
+
+  return await db.select().from(products).where(and(...conditions));
 };
 
 // Get single product by id

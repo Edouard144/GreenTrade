@@ -30,7 +30,9 @@ export const create = async (req, res) => {
 // GET /api/products
 export const getAll = async (req, res) => {
   try {
-    const data = await getAllProducts();
+
+    // req.body is the one that contains all URLs.
+    const data = await getAllProducts(req.query);
     return successResponse(res, "Products fetched", data);
   } catch (err) {
     return errorResponse(res, err.message);
